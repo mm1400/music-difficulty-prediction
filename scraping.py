@@ -26,10 +26,10 @@ class PianoLibraryScraper:
         composer_a_tags = soup.find('table', class_='table_borders').find_all('a')
         urls = []
         for composer in composer_a_tags:
-          composer_name = composer.text.strip()
-          if composer_name in self.composers:
-              relative_url = composer['href'].lstrip('./')
-              urls.append(url + relative_url.removesuffix('/index.html'))
+            composer_name = composer.text.strip()
+            if composer_name in self.composers:
+                relative_url = composer['href'].lstrip('./')
+                urls.append(url + relative_url.removesuffix('/index.html'))
         return urls
 
     def get_song_url(self, url : str, song_name):
@@ -44,10 +44,10 @@ class PianoLibraryScraper:
         soup = BeautifulSoup(response.text, 'html.parser')
         p_tags = soup.find_all('p')
         for p in p_tags:
-          if 'Difficulty' in p.text:
-            link = p.find('a')
-            if link:
-              return link.text
+            if 'Difficulty' in p.text:
+              link = p.find('a')
+              if link:
+                return link.text
         return None
 
           
