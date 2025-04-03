@@ -14,7 +14,7 @@ class PianoLibraryScraper:
           'Domenico Scarlatti',
           'Franz Schubert',
         ]
-        self.composer_links = self.get_composer_links()
+        self.composer_url_map = self.get_composer_links()
         
         
 
@@ -24,13 +24,13 @@ class PianoLibraryScraper:
         response = requests.get(url, timeout=2)
         soup = BeautifulSoup(response.text, 'html.parser')
         composer_a_tags = soup.find('table', class_='table_borders').find_all('a')
-        urls = []
+        composer_url_map = {}
         for composer in composer_a_tags:
             composer_name = composer.text.strip()
             if composer_name in self.composers:
                 relative_url = composer['href'].lstrip('./')
-                urls.append(url + relative_url.removesuffix('/index.html'))
-        return urls
+                composer_url_map[composer_name] = url + relative_url.removesuffix('/index.html')
+        return composer_url_map
 
     def get_song_url(self, url : str, song_name):
         response = requests.get(url, timeout=2)
@@ -45,10 +45,11 @@ class PianoLibraryScraper:
         p_tags = soup.find_all('p')
         for p in p_tags:
             if 'Difficulty' in p.text:
-              link = p.find('a')
-              if link:
-                return link.text
+                link = p.find('a')
+                if link:
+                  return link.text
         return None
+    
 
           
 # if __name__ == "__main__":
