@@ -77,8 +77,8 @@ class PianoLibraryScraper:
         difficulty_map = {}
         for composer in self.composers:
             composer_url = composer_urls.get(composer)
-            html = requests.get(composer_url, timeout=2)
-            difficulty_map[composer] = self.extract_difficulty_map(html.text)
+            response = requests.get(composer_url, timeout=2)
+            difficulty_map[composer] = self.extract_difficulty_map(response.text)
         return difficulty_map
 
         
