@@ -17,6 +17,9 @@ class PianoLibraryScraper:
         ]
         
     def normalize(self, text : str):
+        """
+        Normalize text by converting to lower case, and replacing acroynms with full words.
+        """
         text = re.sub(r"op\.*\s*(\d+)", r"opus \1", text.lower())
         text = re.sub(r"no\.*\s*(\d+)", r"number \1", text)
         text = re.sub(r"[^a-z0-9 ]+", " ", text)
@@ -51,19 +54,26 @@ class PianoLibraryScraper:
                 result[file] = difficulty_map.get(match, "")
         return result
                 
-        
+    def get_composer_urls(self, html : str):
+        """
+        Get all composer difficulty urls from given html
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        composer_urls = {}
+        for composer in self.composers:
+            a_tags = soup.find_all("a")
+            for a in a_tags:
+                if composer.lower() in a.get_text().lower():
+                    url = a.get("href")
+                    composer_urls[composer] = self.base_url + url.lstrip('.')
+        return composer_urls
   
 if __name__ == "__main__":
-    html = requests.get('https://www.pianolibrary.org/difficulty/chopin/', timeout=2)
     scraper = PianoLibraryScraper()
-    difficulty_map = scraper.extract_difficulty_map(html.text)
-    text = scraper.normalize('Mazurka op7 n2')
-    match, score, _ = process.extractOne(text, difficulty_map.keys(), scorer=fuzz.token_sort_ratio)
-    print(score)
-    if score > 70:
-        print(f"Best match: {match} with score: {score}")
-    print(text)
-    print(difficulty_map.get(text, "Difficulty not found"))    
+    composer_html = requests.get('https://www.pianolibrary.org/difficulty/', timeout=2)
+    scraper.get_composer_urls(composer_html.text)
+    print(scraper.get_composer_urls(composer_html.text))
+ 
     
     
         
