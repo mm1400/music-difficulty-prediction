@@ -65,14 +65,28 @@ class PianoLibraryScraper:
             for a in a_tags:
                 if composer.lower() in a.get_text().lower():
                     url = a.get("href")
-                    composer_urls[composer] = self.base_url + url.lstrip('.')
+                    composer_urls[composer] = f"{self.base_url}{'/difficulty'}{url.lstrip('.')}"
         return composer_urls
+  
+    def get_all_composer_difficulty_map(self):
+        """
+        Get all difficulty levels for a given composer
+        """
+        composer_html = requests.get('https://www.pianolibrary.org/difficulty/', timeout=2)
+        composer_urls = self.get_composer_urls(composer_html.text)
+        difficulty_map = {}
+        for composer in self.composers:
+            composer_url = composer_urls.get(composer)
+            html = requests.get(composer_url, timeout=2)
+            difficulty_map[composer] = self.extract_difficulty_map(html.text)
+        return difficulty_map
+
+        
   
 if __name__ == "__main__":
     scraper = PianoLibraryScraper()
-    composer_html = requests.get('https://www.pianolibrary.org/difficulty/', timeout=2)
-    scraper.get_composer_urls(composer_html.text)
-    print(scraper.get_composer_urls(composer_html.text))
+    t = scraper.get_all_composer_difficulty_map()
+    print(t)
  
     
     
