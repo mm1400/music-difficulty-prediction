@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from rapidfuzz import fuzz, process
+from pathlib import Path
 
 class PianoLibraryScraper:
     def __init__(self):
@@ -43,16 +44,14 @@ class PianoLibraryScraper:
                 ul = ul.find_next_sibling("ul")
         return difficulty_map
     
-    def match_files_difficulty(self, html, file_list):
-        result = {}
-        difficulty_map = self.extract_difficulty_map(html)
+    def match_files_difficulty(self, difficulty_map, file):
         keys =  difficulty_map.keys()
-        for file in file_list:
-            text = self.normalize(file)
-            match, score, _ = process.extractOne(text, keys, scorer=fuzz.token_sort_ratio)
-            if score > 70:
-                result[file] = difficulty_map.get(match, "")
-        return result
+        text = self.normalize(file)
+        match, score, _ = process.extractOne(text, keys, scorer=fuzz.token_sort_ratio)
+        if score > 55:
+            print(score, match, file)
+            return difficulty_map.get(match, "")
+        return None
                 
     def get_composer_urls(self, html : str):
         """
@@ -85,8 +84,19 @@ class PianoLibraryScraper:
   
 if __name__ == "__main__":
     scraper = PianoLibraryScraper()
-    t = scraper.get_all_composer_difficulty_map()
-    print(t)
+    all_files = Path('./ALL').glob("*.csv")
+    all_difficulty_map = scraper.get_all_composer_difficulty_map()
+    print(all_difficulty_map)
+    # print(all_files)
+    for file in all_files:
+        composer = file.name.split(' ')[0]
+        for c in scraper.composers:
+            if composer.lower() in c.lower():
+                difficulty = scraper.match_files_difficulty(all_difficulty_map[c], file.name)
+                if difficulty:
+                    break
+    # t = scraper.get_all_composer_difficulty_map()
+    # print(t)
  
     
     
