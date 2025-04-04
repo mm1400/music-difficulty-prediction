@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
+import re
+from rapidfuzz import fuzz, process
 
-     
 class PianoLibraryScraper:
     def __init__(self):
         self.base_url = 'https://www.pianolibrary.org'
@@ -14,59 +15,56 @@ class PianoLibraryScraper:
           'Domenico Scarlatti',
           'Franz Schubert',
         ]
-        self.composer_url_map = self.get_composer_links()
         
+    def normalize(self, text : str):
+        text = re.sub(r"op\.*\s*(\d+)", r"opus \1", text.lower())
+        text = re.sub(r"no\.*\s*(\d+)", r"number \1", text)
+        text = re.sub(r"[^a-z0-9 ]+", " ", text)
+        return re.sub(r"\s+", " ", text).strip()
+
+    def extract_difficulty_map(self, html : str):
+        soup = BeautifulSoup(html, "html.parser")
+        difficulty_map = {}
+
+        for h3 in soup.find_all("h3", class_="section_title"):
+            # "Difficulty 1.5 (42)" becomes "1.5"
+            difficulty = h3.get_text().split()[1]
+            ul = h3.find_next_sibling("ul")
+            while ul and ul.name == "ul":
+                for li in ul.find_all("li"):
+                    # Extract links and text
+                    a = li.find("a")
+                    if a:
+                        title = a.get_text()
+                        difficulty_map[self.normalize(title)] = difficulty
+                ul = ul.find_next_sibling("ul")
+        return difficulty_map
+    
+    def match_files_difficulty(self, html, file_list):
+        result = {}
+        difficulty_map = self.extract_difficulty_map(html)
+        keys =  difficulty_map.keys()
+        for file in file_list:
+            text = self.normalize(file)
+            match, score, _ = process.extractOne(text, keys, scorer=fuzz.token_sort_ratio)
+            if score > 70:
+                result[file] = difficulty_map.get(match, "")
+        return result
+                
         
-
-    
-    def get_composer_links(self):
-        url = 'https://www.pianolibrary.org/composers/'
-        response = requests.get(url, timeout=2)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        composer_a_tags = soup.find('table', class_='table_borders').find_all('a')
-        composer_url_map = {}
-        for composer in composer_a_tags:
-            composer_name = composer.text.strip()
-            if composer_name in self.composers:
-                relative_url = composer['href'].lstrip('./')
-                composer_url_map[composer_name] = url + relative_url.removesuffix('/index.html')
-        return composer_url_map
-
-    def get_song_url(self, url : str, song_name):
-        response = requests.get(url, timeout=2)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        for link in soup.find_all('a'):
-            if song_name in link.text:
-                return url + link['href'].lstrip('.').removesuffix('/index.html')
-              
-    def get_song_difficulty(self, url : str):
-        response = requests.get(url, timeout=2)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        p_tags = soup.find_all('p')
-        for p in p_tags:
-            if 'Difficulty' in p.text:
-                link = p.find('a')
-                if link:
-                  return link.text
-        return None
-    
-    def get_difficulty_for_composer(self, composer_name, song_name):
-        if composer_name in self.composer_url_map:
-            song_url = self.get_song_url(self.composer_url_map[composer_name], song_name)
-            if song_url:
-                return self.get_song_difficulty(song_url)
-        return None
-
-          
+  
 if __name__ == "__main__":
-    scrapper = PianoLibraryScraper()
-    composer_name = 'Johann Sebastian Bach'
-    song_name = 'Prelude'
-    difficulty = scrapper.get_difficulty_for_composer(composer_name, song_name)
-    if difficulty:
-        print(f"The difficulty of '{song_name}' by {composer_name} is: {difficulty}")
-    else:
-        print(f"Difficulty not found for '{song_name}' by {composer_name}.")
+    html = requests.get('https://www.pianolibrary.org/difficulty/chopin/', timeout=2)
+    scraper = PianoLibraryScraper()
+    difficulty_map = scraper.extract_difficulty_map(html.text)
+    text = scraper.normalize('Mazurka op7 n2')
+    match, score, _ = process.extractOne(text, difficulty_map.keys(), scorer=fuzz.token_sort_ratio)
+    print(score)
+    if score > 70:
+        print(f"Best match: {match} with score: {score}")
+    print(text)
+    print(difficulty_map.get(text, "Difficulty not found"))    
+    
     
         
         
