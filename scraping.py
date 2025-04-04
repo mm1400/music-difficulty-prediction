@@ -50,15 +50,23 @@ class PianoLibraryScraper:
                   return link.text
         return None
     
+    def get_difficulty_for_composer(self, composer_name, song_name):
+        if composer_name in self.composer_url_map:
+            song_url = self.get_song_url(self.composer_url_map[composer_name], song_name)
+            if song_url:
+                return self.get_song_difficulty(song_url)
+        return None
 
           
-# if __name__ == "__main__":
-#     composer_links = get_composer_links()
-#     for composer_link in composer_links:
-#         song_url = get_song_url(composer_link, 'prelude')
-#         if song_url:
-#             difficulty = get_song_difficulty(song_url)
-#             if difficulty:
-#                 print(f"Difficulty for {song_url}: {difficulty}")
+if __name__ == "__main__":
+    scrapper = PianoLibraryScraper()
+    composer_name = 'Johann Sebastian Bach'
+    song_name = 'Prelude'
+    difficulty = scrapper.get_difficulty_for_composer(composer_name, song_name)
+    if difficulty:
+        print(f"The difficulty of '{song_name}' by {composer_name} is: {difficulty}")
+    else:
+        print(f"Difficulty not found for '{song_name}' by {composer_name}.")
+    
         
         
