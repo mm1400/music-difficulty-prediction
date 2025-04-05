@@ -39,16 +39,69 @@ class PianoLibraryScraper:
                     # Extract links and text
                     a = li.find("a")
                     if a:
-                        title = a.get_text()
-                        difficulty_map[self.normalize(title)] = difficulty
+                        title = a.get_text()                        
+                        d_number = self.extract_d_number(title)
+                        if d_number:
+                            difficulty_map[d_number] = difficulty
+                        else:
+                            difficulty_map[self.normalize(title)] = difficulty
                 ul = ul.find_next_sibling("ul")
         return difficulty_map
     
+    def extract_d_number(self, title: str) -> str | None:
+        """Extract D, K, or BWV numbers like D960, K123, BWV123, or BWV.123 from title"""
+        match = re.search(r"\b(D|K|BWV)\.?\s?(\d+)\b", title, re.IGNORECASE)
+        if match:
+            return f"{match.group(1).lower()}{match.group(2)}"
+        return None
+    
+    def extract_opus_number(self, title: str) -> str | None:
+        """Extract catalog number like opus119, op33, hess073, etc."""
+        title = title.lower()
+
+        # Match 'op.', 'opus', 'hess', etc.
+        match = re.search(r"\b(op(?:us)?|hess)\.?\s*(\d+)", title)
+        if match:
+            return f"{match.group(1)}{match.group(2)}"
+        return None
+    
+    def extract_bwv_number(self, title: str) -> str | None:
+        """Extract BWV or BWV Anh. number"""
+        title = title.lower()
+
+        # Match BWV or BWV Anh. numbers like 'bwv 1055' or 'bwv anh 151'
+        match = re.search(r"\bbwv\s*(anh\.?)?\s*(\d+)\b", title)
+        if match:
+            prefix = "bwv"
+            if match.group(1):  # it's 'anh.'
+                prefix += "anh"
+            return f"{prefix}{match.group(2)}"
+        return None
+
     def match_files_difficulty(self, difficulty_map, file):
-        keys =  difficulty_map.keys()
-        text = self.normalize(file)
-        match, score, _ = process.extractOne(text, keys, scorer=fuzz.token_sort_ratio)
-        if score > 55:
+        file_norm = self.normalize(file)
+        file_bwv = self.extract_bwv_number(file)
+        file_opus = self.extract_opus_number(file)
+
+        # Filter difficulty_map based on catalog number
+        filtered_keys = list(difficulty_map)
+        if file_bwv:
+            filtered_keys = [
+                key for key in filtered_keys
+                if file_bwv in key or self.extract_bwv_number(key) == file_bwv
+            ]
+        elif file_opus:
+            filtered_keys = [
+                key for key in filtered_keys
+                if file_opus in key or self.extract_opus_number(key) == file_opus
+            ]
+
+        if not filtered_keys:
+            return None
+
+        # Fuzzy match on filtered subset
+        match, score, _ = process.extractOne(file_norm, filtered_keys, scorer=fuzz.token_sort_ratio)
+        if score > 50:
             print(score, match, file)
             return difficulty_map.get(match, "")
         return None
@@ -86,15 +139,18 @@ if __name__ == "__main__":
     scraper = PianoLibraryScraper()
     all_files = Path('./ALL').glob("*.csv")
     all_difficulty_map = scraper.get_all_composer_difficulty_map()
-    print(all_difficulty_map)
+    print('all files length', len(list(all_files)))
     # print(all_files)
+    count = 0
     for file in all_files:
         composer = file.name.split(' ')[0]
         for c in scraper.composers:
             if composer.lower() in c.lower():
                 difficulty = scraper.match_files_difficulty(all_difficulty_map[c], file.name)
                 if difficulty:
-                    break
+                    count = count + 1
+                    
+    print('matched files', count)
     # t = scraper.get_all_composer_difficulty_map()
     # print(t)
  
