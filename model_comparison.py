@@ -1,4 +1,4 @@
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.linear_model import Ridge, LinearRegression, Lasso
@@ -13,7 +13,7 @@ df = pd.read_csv('clustered_data.csv')
 # makes models perform worse
 # df['difficulty_transform'], lambda_value = stats.boxcox(df['difficulty'])
 
-X = df.drop(columns=['difficulty', 'cluster', 'difficulty_transform'])
+X = df.drop(columns=['difficulty', 'cluster'])
 y = df['difficulty']
 
 print(df.head())
@@ -38,4 +38,6 @@ for name, model in models.items():
     print("Mean squared error:", mean_squared_error(y_test, y_pred))
     print("Mean absolute error:", mean_absolute_error(y_test, y_pred))
     print("R^2 score:", r2_score(y_test, y_pred))
+    scores = cross_val_score(model, X, y, cv=5)
+    print("Mean R^2 score from cross-validation:", scores.mean())
     print("======================")
