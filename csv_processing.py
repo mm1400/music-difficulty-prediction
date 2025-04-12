@@ -11,7 +11,7 @@ def get_features(filepath):
     """
     # Load CSV file
     df = pd.read_csv(filepath, low_memory=False)
-    
+     
     if 'tempo' not in df.columns:
         print('file does not contain tempo column', filepath)
         return None
@@ -43,8 +43,15 @@ def get_features(filepath):
     # determine if the time signature has an odd numerator, if so song is harder?
     time_signature = df[df['type'] == 'time_signature']
     
-    
     overlapping_notes = get_overlapping_notes(df)
+
+    chord_density = overlapping_notes / note_on_count
+    
+    duration_per_note = unique_note_count / total_duration
+    
+    tempo_complexity = tempo_deviation / average_tempo
+    
+    notes_per_second = note_on_count / (total_duration / 1000)
     
     return {
       'file': filepath.split('\\')[1],
@@ -57,6 +64,10 @@ def get_features(filepath):
       'unique_note_count': unique_note_count,
       'total_duration': total_duration,
       'overlapping_notes': overlapping_notes,
+      'chord_density': chord_density,
+      'duration_per_note': duration_per_note,
+      'tempo_complexity': tempo_complexity,
+      'notes_per_second': notes_per_second,
     }
 
 def get_overlapping_notes(df):
@@ -69,12 +80,12 @@ def get_overlapping_notes(df):
                 overlapping_notes += 1
     return overlapping_notes
 
-def process_directory(directory, recursive=False):
+def process_directory(file_list):
     """
     Process all CSV files in the given directory and extract features.
     """
     print('getting files...')
-    files = list(get_files_in_directory(directory, recursive))
+    files = list(file_list)
     total_files = len(files)
     results = []
     print(f'found {total_files} files, processing...')
@@ -113,10 +124,21 @@ if __name__ == "__main__":
         action='store_true',
         help="Whether to search recursively in subdirectories"
     )
+    parser.add_argument(
+        "--filepath",
+        type=str,
+        help="Path to a file that lists CSV files to process",
+    )
     args = parser.parse_args()
     features = []
+    if args.filepath:
+        with open(args.filepath, 'r', encoding="utf-8") as f:
+            file_list = [os.path.join(args.directory, line.strip()) for line in f.readlines()]
+    else:
+        file_list = list(get_files_in_directory(args.directory, args.recursive))
+    
     try:
-        features = process_directory(args.directory, args.recursive)
+        features = process_directory(file_list)
     except Exception as e:
         print(f"Error processing files: {e}")
     finally:
