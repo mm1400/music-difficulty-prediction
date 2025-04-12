@@ -68,6 +68,7 @@ def get_features(filepath):
       'duration_per_note': duration_per_note,
       'tempo_complexity': tempo_complexity,
       'notes_per_second': notes_per_second,
+      'hand_independence': get_hand_independence_score(df),
     }
 
 def get_overlapping_notes(df):
@@ -80,6 +81,20 @@ def get_overlapping_notes(df):
                 overlapping_notes += 1
     return overlapping_notes
 
+def get_hand_independence_score(df):
+    df = df[df['type'] == 'note_on']
+    
+    grouped = df.groupby('tick')
+
+    independent_ticks = 0
+    for _, group in grouped:
+        if group['track'].nunique() > 1:
+            independent_ticks += 1
+    
+    total_ticks_with_notes = grouped.ngroups
+    
+    return independent_ticks / total_ticks_with_notes
+    
 def process_directory(file_list):
     """
     Process all CSV files in the given directory and extract features.
