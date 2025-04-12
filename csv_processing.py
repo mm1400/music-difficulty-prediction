@@ -52,6 +52,8 @@ def get_features(filepath):
     
     notes_per_second = note_on_count / (total_duration / 1000)
     
+    pitch_range = df['note'].max() - df['note'].min()
+    
     return {
       'file': filepath.split('\\')[1],
       'average_tempo': average_tempo,
@@ -70,6 +72,8 @@ def get_features(filepath):
       'hand_independence': get_hand_independence_score(df),
       'odd_time_signature_count': odd_time_signature_count,
       'consecutive_note_std': get_consecutive_note_std(df),
+      'pitch_range': pitch_range,
+      'average_polyphony': get_average_polyphony(df),
     }
 
 def get_overlapping_notes(df):
@@ -104,6 +108,11 @@ def get_consecutive_note_std(df):
     
     return tick_diffs.std()
 
+def get_average_polyphony(df):
+    note_ons = df[df['type'] == 'note_on']
+    grouped = note_ons.groupby('tick').size()
+    return grouped.mean()
+    
 def process_directory(file_list):
     """
     Process all CSV files in the given directory and extract features.
