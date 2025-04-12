@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 df = pd.read_csv('merged.csv')
 print(df.shape)
-df.drop(['file', 'average_tempo'], axis=1, inplace=True)
+df.drop(['file'], axis=1, inplace=True)
 print(df.info())
 
 

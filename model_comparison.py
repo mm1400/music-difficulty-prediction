@@ -8,15 +8,17 @@ from sklearn.pipeline import make_pipeline
 from xgboost import XGBRegressor
 import pandas as pd
 
-df = pd.read_csv('clustered_data.csv')
+df = pd.read_csv('merged.csv')
 
 # makes models perform worse
 # df['difficulty_transform'], lambda_value = stats.boxcox(df['difficulty'])
 
-X = df.drop(columns=['difficulty', 'cluster'])
+print(df.head())
+
+X = df.drop(columns=['difficulty', 'file', 'average_tempo', 'note_count', 'notes_per_second'])
 y = df['difficulty']
 
-print(df.head())
+print(X.columns)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -41,3 +43,12 @@ for name, model in models.items():
     scores = cross_val_score(model, X, y, cv=5)
     print("Mean R^2 score from cross-validation:", scores.mean())
     print("======================")
+    
+    # importances = model.feature_importances_
+    # feature_names = X.columns
+    # importance_df = pd.DataFrame({
+    #     "Feature": feature_names,
+    #     "Importance": importances
+    # }).sort_values(by="Importance", ascending=False)
+    
+    # print(importance_df)
