@@ -34,14 +34,13 @@ def get_features(filepath):
     average_note_density = note_on_count
 
     # for each note_on, compare to the tick on the next row on how big the difference is between the two 
-    df[df['type'] == 'note_on']
 
     tick_count = df['tick'].max()
 
     note_density = note_on_count / tick_count
 
-    # determine if the time signature has an odd numerator, if so song is harder?
-    time_signature = df[df['type'] == 'time_signature']
+    # determine if the time signature has an odd numerator
+    odd_time_signature_count = df[(df['type'] == 'time_signature') & (df['numerator'] % 2 != 0)].shape[0]
     
     overlapping_notes = get_overlapping_notes(df)
 
@@ -69,6 +68,8 @@ def get_features(filepath):
       'tempo_complexity': tempo_complexity,
       'notes_per_second': notes_per_second,
       'hand_independence': get_hand_independence_score(df),
+      'odd_time_signature_count': odd_time_signature_count,
+      'consecutive_note_std': get_consecutive_note_std(df),
     }
 
 def get_overlapping_notes(df):
@@ -95,6 +96,14 @@ def get_hand_independence_score(df):
     
     return independent_ticks / total_ticks_with_notes
     
+def get_consecutive_note_std(df):
+    note_ons = df[df['type'] == 'note_on'].copy()
+    note_ons['tick_diff'] =  note_ons['tick'].diff()
+    
+    tick_diffs = note_ons['tick_diff'].dropna()
+    
+    return tick_diffs.std()
+
 def process_directory(file_list):
     """
     Process all CSV files in the given directory and extract features.
