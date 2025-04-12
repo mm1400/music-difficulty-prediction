@@ -54,6 +54,10 @@ def get_features(filepath):
     
     pitch_range = df['note'].max() - df['note'].min()
     
+    tempo_change_count = df[df['type'] == 'set_tempo'].shape[0]
+    
+    max_polyphony = df[df['type'] == 'note_on'].groupby('tick').size().max()
+    
     return {
       'file': filepath.split('\\')[1],
       'average_tempo': average_tempo,
@@ -74,6 +78,8 @@ def get_features(filepath):
       'consecutive_note_std': get_consecutive_note_std(df),
       'pitch_range': pitch_range,
       'average_polyphony': get_average_polyphony(df),
+      'tempo_change_count': tempo_change_count,
+      'max_polyphony': max_polyphony,
     }
 
 def get_overlapping_notes(df):
