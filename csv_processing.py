@@ -61,6 +61,7 @@ def get_features(filepath):
     
     max_polyphony = df[df['type'] == 'note_on'].groupby('tick').size().max()
     
+    note_transitions =  note_transition(df)
     return {
       'file': filepath.split('\\')[1],
       'average_tempo': average_tempo,
@@ -83,7 +84,12 @@ def get_features(filepath):
       'average_polyphony': get_average_polyphony(df),
       'tempo_change_count': tempo_change_count,
       'max_polyphony': max_polyphony,
+      'note_to_note_transition': note_transitions[0],
+      'note_to_chord_transition': note_transitions[1],
+      'chord_to_note_transition': note_transitions[2],
+      'chord_to_chord_transition': note_transitions[3]
     }
+
 
 def get_overlapping_notes(df):
     overlapping_notes = 0
@@ -150,6 +156,56 @@ def get_files_in_directory(directory, recursive=False):
     else:
         return Path(directory).glob("*.csv")
     
+def note_transition(df):
+
+
+    # Filter for "note_on" events with velocity > 0 (to exclude note_offs)
+    note_df = df[(df["type"] == "note_on") & (df["velocity"] > 0)]
+
+    # Group by tick to find notes played simultaneously (i.e., chords)
+    grouped = note_df.groupby("tick")["note"].apply(list).reset_index()
+
+
+    # Helper functions
+    def get_type(notes):
+        return "chord" if len(notes) > 1 else "note"
+
+    def get_centroid(notes):
+        return sum(notes) / len(notes)
+
+    # Calculate weighted intervals between events
+    note_to_note = 0
+    note_to_chord = 0
+    chord_to_note = 0
+    chord_to_chord = 0
+
+    for i in range(len(grouped) - 1):
+        current_notes = grouped.iloc[i]["note"]
+        next_notes = grouped.iloc[i + 1]["note"]
+
+        current_type = get_type(current_notes)
+        next_type = get_type(next_notes)
+
+        current_centroid = get_centroid(current_notes)
+        next_centroid = get_centroid(next_notes)
+
+        interval = abs(next_centroid - current_centroid)
+
+        if current_type == "note":
+            if next_type == "note":
+                note_to_note += interval
+            else:
+                note_to_chord += interval
+        else:
+            if next_type == "note":
+                chord_to_note += interval
+            else:
+                chord_to_chord += interval
+
+
+    return note_to_note, note_to_chord, chord_to_note, chord_to_chord
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract features from CSV files present in a directory")
     parser.add_argument("directory", type=str, help="Directory containing CSV files")
@@ -157,7 +213,7 @@ if __name__ == "__main__":
         "--output", 
         "-o", 
         type=str, 
-        default="features.csv", 
+        default="features(2).csv", 
         help="Output CSV file for features"
     )
     parser.add_argument(
