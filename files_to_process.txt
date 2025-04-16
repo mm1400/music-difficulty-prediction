@@ -74,7 +74,6 @@ Schubert - Piano Sonata n21 D960 4mov.csv
 Schubert - Symphony D759 n8 1mov Unfinished.csv
 Schubert - Symphony D759 n8 2mov Unfinished.csv
 Schubert - Symphony D759 n8 3mov Unfinished.csv
-Schubert - Valses Sentimentales op50 D779.csv
 Schubert - Moments musicaux op94 D780 n1.csv
 Schubert - Moments musicaux op94 D780 n2.csv
 Schubert - Moments musicaux op94 D780 n3.csv
@@ -148,3 +147,58 @@ Mozart - Piano Sonata n17 K547a.csv
 Mozart - Piano Sonata n18 K570.csv
 Mozart - Piano Sonata n19 K576.csv
 Mozart - Rondo.csv
+Bach - Bwv772 Invention n01.csv
+Bach - Bwv775 Invention n04.csv
+Bach - Bwv0934 Little Prelude n2.csv
+Bach - Bwv0992 Capriccio.csv
+Bach - invent1.csv
+Bach - invent4.csv
+Bach - Minuet in G.csv
+Chopin - Prelude n04 op28 Suffocation.csv
+Chopin - Prelude n05 op28 Uncertainty.csv
+Scarlatti - K032.csv
+Scarlatti - K034.csv
+Scarlatti - K040.csv
+Scarlatti - K042.csv
+Scarlatti - K078.csv
+Scarlatti - K080.csv
+Scarlatti - K083.csv
+Scarlatti - K088.csv
+Scarlatti - K090.csv
+Scarlatti - K091.csv
+Scarlatti - K163.csv
+Scarlatti - K164.csv
+Scarlatti - K165.csv
+Scarlatti - K185.csv
+Scarlatti - K274.csv
+Scarlatti - K291.csv
+Scarlatti - K308.csv
+Scarlatti - K310.csv
+Scarlatti - K322.csv
+Scarlatti - K335.csv
+Scarlatti - K374.csv
+Scarlatti - K389.csv
+Scarlatti - K391.csv
+Scarlatti - K415.csv
+Scarlatti - K431.csv
+Scarlatti - K453.csv
+Scarlatti - K472.csv
+Scarlatti - K073.csv
+Scarlatti - K078.csv
+Scarlatti - K088.csv
+Scarlatti - K034.csv
+Bach - The Art of the Fugue BWV1080.csv
+Beethoven - Sonata in Bflat Major Op.106.csv
+Chopin - Etude Op.10 No.11.csv
+Chopin - Op.53 Polonaise in A flat Heroic.csv
+Debussy - Mouvement from Imafesl.csv
+Ravel - Jeux dEau.csv
+Scarlatti - K120.csv
+Scarlatti - K140.csv
+Scarlatti - K299.csv
+Schubert - Fantasie D760 3mov Wanderer.csv
+Schubert - Fantasie D760 4mov Wanderer.csv
+Schumann - Abegg Variations op1.csv
+Prokofiev - Tocccata for Piano.csv
+Ravel - Alborada del Gracioso.csv
+Schumann - Schuman Toccata op7.csv
