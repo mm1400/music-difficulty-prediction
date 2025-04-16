@@ -40,7 +40,10 @@ def get_features(filepath):
     note_density = note_on_count / tick_count
 
     # determine if the time signature has an odd numerator
-    odd_time_signature_count = df[(df['type'] == 'time_signature') & (df['numerator'] % 2 != 0)].shape[0]
+    if 'numerator' in df.columns:
+        odd_time_signature_count = df[(df['type'] == 'time_signature') & (df['numerator'] % 2 != 0)].shape[0]
+    else:
+        odd_time_signature_count = 0
     
     overlapping_notes = get_overlapping_notes(df)
 
