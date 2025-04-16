@@ -13,8 +13,10 @@ df = pd.read_csv('merged.csv')
 # makes models perform worse
 # df['difficulty_transform'], lambda_value = stats.boxcox(df['difficulty'])
 
+df = df.round({'difficulty': 0})
+
 print(df.head())
-X = df.drop(columns=['difficulty','file', 'average_tempo', 'note_count', 'notes_per_second', 'average_bpm', 'overlapping_notes', 'total_duration', 'average_polyphony', 'tempo_complexity'])
+X = df[['note_count',  'unique_note_count', 'pitch_range', 'tempo_change_count', 'overlapping_notes']]
 y = df['difficulty']
 
 print(X.columns)
