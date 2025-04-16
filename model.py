@@ -1,5 +1,5 @@
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.linear_model import Ridge, LinearRegression, Lasso
 from sklearn.preprocessing import StandardScaler, LabelEncoder, MinMaxScaler
@@ -8,6 +8,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.feature_selection import r_regression, SelectPercentile
 from xgboost import XGBRegressor
 import pandas as pd
+import pickle
+import numpy as np
 
 df = pd.read_csv('merged.csv')
 
@@ -58,10 +60,12 @@ print("Features kept:", features_names[selector.get_support()])
 scaler = MinMaxScaler()
 X = scaler.fit_transform(X)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+rng = np.random.RandomState(0)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=rng)
 
 models = {
-    'Random Forest': RandomForestRegressor(n_estimators=100),
+    'Random Forest': RandomForestRegressor(n_estimators=100, random_state=rng),
     # 'SVR (RBF)': make_pipeline(SVR(kernel='rbf'))
 }
 
@@ -69,10 +73,15 @@ for name, model in models.items():
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     print(f"Model: {name}")
+    # Round and clip to ensure valid difficulty levels
+    y_pred_rounded = np.clip(np.round(y_pred), 1, 5)
     print("Mean squared error:", mean_squared_error(y_test, y_pred))
     print("Mean absolute error:", mean_absolute_error(y_test, y_pred))
     print("R^2 score:", r2_score(y_test, y_pred))
-    scores = cross_val_score(model, X, y, cv=5)
-    print(":", scores.mean())
     print("======================")
+    
+
+    # Save the model to disk
+    with open('saved_model.pkl', 'wb') as file:
+      pickle.dump(model, file)
     
