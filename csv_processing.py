@@ -83,7 +83,51 @@ def get_features(filepath):
       'average_polyphony': get_average_polyphony(df),
       'tempo_change_count': tempo_change_count,
       'max_polyphony': max_polyphony,
+      'note_transitions': note_transition_score(df)
     }
+
+def note_transition_score(df):
+
+    # Filter for "note_on" events with velocity > 0 (to exclude note_offs)
+    note_df = df[(df["type"] == "note_on") & (df["velocity"] > 0)]
+
+    # Group by tick to find notes played simultaneously (i.e., chords)
+    grouped = note_df.groupby("tick")["note"].apply(list).reset_index()
+
+    # Define weights for transition types
+    weights = {
+        ("note", "note"): 1.0,
+        ("note", "chord"): 3.0,
+        ("chord", "note"): 3.0,
+        ("chord", "chord"): 5.0
+    }
+
+    # Helper functions
+    def get_type(notes):
+        return "chord" if len(notes) > 1 else "note"
+
+    def get_centroid(notes):
+        return sum(notes) / len(notes)
+
+    # Calculate weighted intervals between events
+    total_weighted = 0
+
+    for i in range(len(grouped) - 1):
+        current_notes = grouped.iloc[i]["note"]
+        next_notes = grouped.iloc[i + 1]["note"]
+
+        current_type = get_type(current_notes)
+        next_type = get_type(next_notes)
+
+        current_centroid = get_centroid(current_notes)
+        next_centroid = get_centroid(next_notes)
+
+        interval = abs(next_centroid - current_centroid)
+        weight = weights[(current_type, next_type)]
+
+        total_weighted += interval * weight
+
+    return total_weighted
 
 def get_overlapping_notes(df):
     overlapping_notes = 0
