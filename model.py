@@ -51,7 +51,7 @@ y = df['difficulty']
 features_names = X.columns
 
 # Keep the best features
-selector = SelectPercentile(r_regression, percentile=35)
+selector = SelectPercentile(r_regression, percentile=40)
 X = selector.fit_transform(X, y)
 
 print("Features kept:", features_names[selector.get_support()])
