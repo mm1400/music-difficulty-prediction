@@ -1,46 +1,23 @@
+from sklearn import clone
+from sklearn.base import RegressorMixin, TransformerMixin, BaseEstimator
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
-from sklearn.linear_model import Ridge, LinearRegression, Lasso
-from sklearn.preprocessing import StandardScaler, LabelEncoder, MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from sklearn.pipeline import make_pipeline
 from sklearn.feature_selection import r_regression, SelectPercentile
+from sklearn.model_selection import KFold
 from xgboost import XGBRegressor
 import pandas as pd
 import pickle
 import numpy as np
 
-df = pd.read_csv('merged.csv')
+df = pd.read_csv('processed.csv')
 
 # makes models perform worse
 # df['difficulty_transform'], lambda_value = stats.boxcox(df['difficulty'])
 
-def change_difficulty(num):
-    match num:
-        case 1:
-           return 1
-        case 1.5:
-           return 1
-        case 2:
-           return 2
-        case 2.5:
-            return 2
-        case 3:
-            return 3
-        case 3.5:
-           return 4
-        case 4:
-            return 4
-        case 4.5:
-           return 5
-        case 5:
-           return 5
-    
-df['difficulty'] = df['difficulty'].apply(change_difficulty)
-
-# Delete non numeric columns
-df.drop(columns=['file'], inplace=True)
 print(df.head())
 
 # Define features
@@ -60,14 +37,28 @@ print("Features kept:", features_names[selector.get_support()])
 scaler = MinMaxScaler()
 X = scaler.fit_transform(X)
 
+# Removes randomness from the model across runs
 rng = np.random.RandomState(0)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=rng)
 
 models = {
     'Random Forest': RandomForestRegressor(n_estimators=100, random_state=rng),
-    # 'SVR (RBF)': make_pipeline(SVR(kernel='rbf'))
+    'SVR (RBF)': make_pipeline(SVR(kernel='rbf')),
+    # 'lasso': make_pipeline(RobustScaler(), Lasso(alpha=0.1)),
+    # 'Enet': make_pipeline(RobustScaler(), ElasticNet(alpha=0.5)),
+    # 'KRR': KernelRidge(alpha=0.6, kernel='polynomial', degree=2, coef0=2.5),
+    # 'LinearRegression': LinearRegression(),
+    'XGB':  XGBRegressor(),
 }
+
+#Validation function
+n_folds = 5
+
+def rmse_cross_validation(model):
+    kf = KFold(n_folds, shuffle=True, random_state=42)
+    rmse= np.sqrt(-cross_val_score(model, X_train, y_train, scoring="neg_mean_squared_error", cv = kf))
+    return(rmse)
 
 for name, model in models.items():
     model.fit(X_train, y_train)
@@ -78,6 +69,7 @@ for name, model in models.items():
     print("Mean squared error:", mean_squared_error(y_test, y_pred))
     print("Mean absolute error:", mean_absolute_error(y_test, y_pred))
     print("R^2 score:", r2_score(y_test, y_pred))
+    print("Root mean squared error:", rmse_cross_validation(model).mean())
     print("======================")
     
 
@@ -85,3 +77,34 @@ for name, model in models.items():
     with open('saved_model.pkl', 'wb') as file:
       pickle.dump(model, file)
     
+# referenced from https://www.kaggle.com/code/serigne/stacked-regressions-top-4-on-leaderboard
+class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
+    def __init__(self, models):
+        self.models = models
+        
+    # we define clones of the original models to fit the data in
+    def fit(self, X, y):
+        self.models_ = [clone(x) for x in self.models]
+        
+        # Train cloned base models
+        for model in self.models_:
+            model.fit(X, y)
+
+        return self
+    
+    #Now we do the predictions for cloned models and average them
+    def predict(self, X):
+        predictions = np.column_stack([
+            model.predict(X) for model in self.models_
+        ])
+        return np.mean(predictions, axis=1)   
+    
+averaged_models = AveragingModels(models=list(models.values()))
+score = rmse_cross_validation(averaged_models)
+print(" Averaged base models score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
+
+averaged_models.fit(X_train, y_train)
+y_pred = averaged_models.predict(X_test)
+print("Mean squared error:", mean_squared_error(y_test, y_pred))
+print("Mean absolute error:", mean_absolute_error(y_test, y_pred))
+print("R^2 score:", r2_score(y_test, y_pred))
