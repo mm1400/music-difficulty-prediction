@@ -1,11 +1,15 @@
 import streamlit as st
 
-import convert_midi_to_csv as convert
+import pandas as pd
 
 from mido import MidiFile
 
+import pickle
 
+from AveragingModels import AveragingModels
 
+import csv_processing
+import convert_midi_to_csv as convert
 
 st.title("Piano Music Difficult Prediction")
 st.write(
@@ -25,8 +29,30 @@ if midi != None:
     mid = MidiFile(file=midi)
 
     # Convert to CSV (as DataFrame)
-    csv = convert.mid_to_csv(mid)
+    csv = pd.DataFrame(convert.mid_to_csv(mid))
+    csv = csv.reset_index()
 
     st.write(csv)
+    
 
+    df = pd.DataFrame(csv_processing.get_features(csv), index=[0])
+
+    st.write("Features extracted:")
+    st.write(df)
+
+    features_kept = ['note_count', 'note_density', 'unique_note_count', 'notes_per_second',
+       'pitch_range', 'tempo_change_count', 'note_to_note_transition',
+       'note_to_chord_transition', 'chord_to_note_transition',
+       'chord_to_chord_transition']
+
+    df = df.loc[:, features_kept]
+    
+
+
+
+    with open('models/averaged_models.pkl', 'rb') as file:
+        averaged_models = pickle.load(file)
+
+    st.write("Predicted difficult level")
+    st.write(averaged_models.predict(df))
 
