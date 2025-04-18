@@ -63,7 +63,7 @@ def get_features(filepath):
     
     note_transitions =  note_transition(df)
     return {
-      'file': filepath.split('\\')[1],
+      'file': str(filepath).split('\\')[1],
       'average_tempo': average_tempo,
       'average_bpm': average_bpm,
       'note_count': note_on_count,
