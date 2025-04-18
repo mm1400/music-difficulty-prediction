@@ -4,10 +4,10 @@ import os
 import pandas as pd
 from mido import MidiFile, MetaMessage, Message, MidiTrack
 
-def mid_to_csv(path_in: str) -> None:
+# Function to convert a MIDI file to a CSV file.
+def mid_to_csv(mid) -> None:
     """Convert a midi file to a csv file"""
     df = pd.DataFrame()
-    mid = mid = MidiFile(path_in)
 
     for n_track, track in enumerate(mid.tracks):
         track_df = pd.DataFrame()
@@ -48,4 +48,3 @@ def mid_to_csv(path_in: str) -> None:
     df.sort_index(inplace=True)
 
     return df
-

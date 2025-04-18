@@ -2,6 +2,11 @@ import streamlit as st
 
 import convert_midi_to_csv as convert
 
+from mido import MidiFile
+
+
+
+
 st.title("Piano Music Difficult Prediction")
 st.write(
     "A tool to let you know what you should play next"
@@ -13,15 +18,15 @@ if midi != None:
     
     st.write("Filename:", midi.name)
 
-    # Save the uploaded file temporarily to disk
-    filename = f"saved_{midi.name}"
-    with open(filename, "wb") as f:
-        f.write(midi.read())
+    # Rewind to start in case it was read already
+    midi.seek(0)
 
+    # Load MIDI directly from file-like object
+    mid = MidiFile(file=midi)
 
-    # Convert the midi file to a CSV DataFrame
-    csv = convert.mid_to_csv(filename)
+    # Convert to CSV (as DataFrame)
+    csv = convert.mid_to_csv(mid)
 
-    # Display the CSV DataFrame
     st.write(csv)
+
 
