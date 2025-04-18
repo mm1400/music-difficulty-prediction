@@ -213,7 +213,7 @@ if __name__ == "__main__":
         "--output", 
         "-o", 
         type=str, 
-        default="features(2).csv", 
+        default="data/features.csv", 
         help="Output CSV file for features"
     )
     parser.add_argument(
