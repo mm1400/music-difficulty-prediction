@@ -14,11 +14,11 @@ import pickle
 import numpy as np
 import json
 
-# referenced from https://www.kaggle.com/code/serigne/stacked-regressions-top-4-on-leaderboard
 class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
-    def __init__(self, models):
+    def __init__(self, models, scaler):
         self.models = models
-        
+        self.scaler = scaler
+
     # we define clones of the original models to fit the data in
     def fit(self, X, y):
         self.models_ = [clone(x) for x in self.models]
@@ -34,4 +34,4 @@ class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
         predictions = np.column_stack([
             model.predict(X) for model in self.models_
         ])
-        return np.mean(predictions, axis=1)   
+        return np.mean(predictions, axis=1) 
