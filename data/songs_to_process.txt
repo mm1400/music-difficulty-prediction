@@ -246,3 +246,9 @@ Chopin - Etude Op25.csv
 Beethoven - Sonata Op106 No29 mov4.csv
 Scriabin - Op42 No5.csv
 Scriabin - Op42 No6.csv
+Bach - invent1.csv
+Bach - invent4.csv
+Beethoven - Piano Sonata n10 1mov.csv
+Beethoven - Piano Sonata n08 op13 1mov Pathetique.csv
+Mozart - Early Pieces n1 Andante.csv
+Schubert - Valses Sentimentales op50 D779.csv
