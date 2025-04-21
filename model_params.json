@@ -1,1 +1,30 @@
-{"XGB": {"best_params": {"gamma": 0, "learning_rate": 0.1, "max_depth": 2, "min_child_weight": 2, "n_estimators": 1000}, "best_score": 0.6936408629359881}, "RandomForest": {"best_params": {"max_depth": 10, "max_features": "sqrt", "max_leaf_nodes": null, "min_samples_split": 2, "n_estimators": 100}, "best_score": 0.7179281339930079}, "SVR": {"best_params": {"C": 1, "gamma": "scale", "kernel": "rbf"}, "best_score": 0.669228374002386}}
+{
+  "XGB": {
+    "best_params": {
+      "gamma": 0.1,
+      "learning_rate": 0.1,
+      "max_depth": 3,
+      "min_child_weight": 1,
+      "n_estimators": 200
+    },
+    "best_score": 0.7744292936299656
+  },
+  "RandomForest": {
+    "best_params": {
+      "max_depth": 10,
+      "max_features": "sqrt",
+      "max_leaf_nodes": null,
+      "min_samples_split": 2,
+      "n_estimators": 100
+    },
+    "best_score": 0.7979530127272524
+  },
+  "SVR": {
+    "best_params": {
+      "C": 10,
+      "gamma": "scale",
+      "kernel": "rbf"
+    },
+    "best_score": 0.7865149255246596
+  }
+}
