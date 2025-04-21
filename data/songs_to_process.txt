@@ -202,3 +202,47 @@ Schumann - Abegg Variations op1.csv
 Prokofiev - Tocccata for Piano.csv
 Ravel - Alborada del Gracioso.csv
 Schumann - Schuman Toccata op7.csv
+Handel - Minuet 1.csv
+Handel - Minuet 2.csv
+Handel - Minuet 3.csv
+Handel - Minuet 4.csv
+Handel - Minuet 5.csv
+Handel - Minuet 6.csv
+Handel - Minuet 7.csv
+Handel - Minuet 8.csv
+Handel - Minuet 9a.csv
+Handel - Minuet 9b.csv
+Handel - Minuet 10.csv
+Handel - Minuet 11.csv
+Handel - Minuet 12.csv
+Handel - Minuet 13.csv
+Handel - Minuet 14.csv
+Handel - Minuet 15.csv
+Handel - Minuet 16.csv
+Handel - Minuet 17.csv
+Handel - Minuet 18.csv
+Handel - Minuet 19.csv
+Handel - Minuet 20.csv
+Handel - Minuet 21.csv
+Handel - Minuet 22.csv
+Handel - Minuet 23.csv
+Handel - Minuet 24.csv
+Handel - Minuet 25.csv
+Handel - Minuet 26.csv
+Handel - Minuet 27.csv
+Handel - Minuet 28.csv
+Handel - Minuet 29.csv
+Handel - Minuet 30.csv
+Handel - Minuet 31.csv
+Handel - Minuet 32.csv
+Handel - Minuet 33.csv
+Handel - Minuet 34.csv
+Handel - Minuet 35.csv
+Handel - Minuet 36.csv
+Handel - Minuet 37.csv
+Lizt - S137 No 2.csv
+Lizt - S137 No 5.csv
+Chopin - Etude Op25.csv
+Beethoven - Sonata Op106 No29 mov4.csv
+Scriabin - Op42 No5.csv
+Scriabin - Op42 No6.csv
