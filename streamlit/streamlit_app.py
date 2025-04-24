@@ -32,7 +32,8 @@ class streamlit:
         """
         Display the header
         """
-        st.title("Piano Music Difficult Prediction")
+        st.title("Scale Up")
+        st.subheader("A tool to let you know what you should play next")
         st.write(
             "A tool to let you know what you should play next"
         )
