@@ -1,4 +1,36 @@
 {
+  "LinearRegression": {
+    "best_params": {
+      "copy_X": true,
+      "fit_intercept": true
+    },
+    "best_score": 0.6883422140029883
+  },
+  "Ridge": {
+    "best_params": {
+      "alpha": 1,
+      "copy_X": true,
+      "fit_intercept": true
+    },
+    "best_score": 0.7299000359080617
+  },
+  "Lasso": {
+    "best_params": {
+      "alpha": 0.1,
+      "copy_X": true,
+      "fit_intercept": false
+    },
+    "best_score": 0.6834461091340264
+  },
+  "ElasticNet": {
+    "best_params": {
+      "alpha": 0.1,
+      "copy_X": true,
+      "fit_intercept": false,
+      "l1_ratio": 0.9
+    },
+    "best_score": 0.6854046940222697
+  },
   "XGB": {
     "best_params": {
       "gamma": 0.1,
