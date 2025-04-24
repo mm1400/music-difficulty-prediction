@@ -62,6 +62,23 @@ def get_features(filepath):
     max_polyphony = df[df['type'] == 'note_on'].groupby('tick').size().max()
     
     note_transitions =  note_transition(df)
+    
+    average_polyphony = get_average_polyphony(df)
+    consecutive_notes_std = get_consecutive_note_std(df)
+    hand_independence_score = get_hand_independence_score(df)
+    
+    high_difficulty_df = pd.DataFrame({
+        'note_density': [note_density],
+        'tempo_change_count': [tempo_change_count],
+        'max_polyphony': [max_polyphony],
+        'pitch_range': [pitch_range],
+        'consecutive_note_std': [consecutive_notes_std],
+        'hand_independence': [hand_independence_score],
+        'note_to_chord_transition': [note_transitions[1]],
+        'chord_to_note_transition': [note_transitions[2]],
+        'average_polyphony': [average_polyphony]
+    })
+    
     return {
       'file': str(filepath).split('\\')[1],
       'average_tempo': average_tempo,
@@ -77,19 +94,31 @@ def get_features(filepath):
       'duration_per_note': duration_per_note,
       'tempo_complexity': tempo_complexity,
       'notes_per_second': notes_per_second,
-      'hand_independence': get_hand_independence_score(df),
+      'hand_independence': hand_independence_score,
       'odd_time_signature_count': odd_time_signature_count,
-      'consecutive_note_std': get_consecutive_note_std(df),
+      'consecutive_note_std': consecutive_notes_std,
       'pitch_range': pitch_range,
-      'average_polyphony': get_average_polyphony(df),
+      'average_polyphony': average_polyphony,
       'tempo_change_count': tempo_change_count,
       'max_polyphony': max_polyphony,
       'note_to_note_transition': note_transitions[0],
       'note_to_chord_transition': note_transitions[1],
       'chord_to_note_transition': note_transitions[2],
-      'chord_to_chord_transition': note_transitions[3]
+      'chord_to_chord_transition': note_transitions[3],
+      'leap_frequency': get_leap_frequency(df),
     }
-
+    
+    
+def get_leap_frequency(df):
+    leap_count = 0
+    note_count = len(df[df['type'] == 'note_on'])
+    for i in range(1, len(df)):
+        current_row = df.iloc[i-1]
+        next_row = df.iloc[i]
+        if abs(current_row['note'] - next_row['note']) > 12:
+            leap_count += 1
+    return leap_count / note_count
+    
 
 def get_overlapping_notes(df):
     overlapping_notes = 0
