@@ -4,4 +4,5 @@ mido
 nbimporter
 scikit-learn==1.6.1
 xgboost==3.0.0
+opencv-python-headless
 -e git+https://github.com/mm1400/SheetVision.git#egg=sheetvision
