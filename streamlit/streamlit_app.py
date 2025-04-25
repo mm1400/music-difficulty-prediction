@@ -1,11 +1,3 @@
-import streamlit as st
-
-import pandas as pd
-
-import numpy as np 
-
-from mido import MidiFile
-
 import pickle
 
 from sklearn.preprocessing import MinMaxScaler
@@ -16,6 +8,8 @@ import random
 from AveragingModels import AveragingModels
 import csv_processing
 import convert_midi_to_csv as convert
+import streamlit as st
+import pandas as pd
 
 
 class streamlit:
@@ -144,6 +138,40 @@ class streamlit:
             if self.difficulty_predicted - 0.3 < piece["predicted_difficulty"] < self.difficulty_predicted + 0.5:
                 self.recommendation_list.append(piece)
 
+    def display_difficulty_ranges(self):
+        """
+        Display a list of songs grouped by difficulty ranges.
+        """
+        st.markdown("### Browse Songs by Difficulty Range")
+
+        # Load predictions if not already loaded
+        df = self.predcsv.copy()
+
+        # Define ranges
+        difficulty_ranges = [
+            (1.0, 1.5),
+            (2.0, 2.5),
+            (3.0, 3.0),
+            (3.5, 3.5),
+            (4.0, 4.5),
+            (5.0, 5.0)
+        ]
+
+        for low, high in difficulty_ranges:
+            if low == high:
+                label = f"Difficulty {low}"
+            else:
+                label = f"Difficulty {low}-{high}"
+
+            filtered = df[(df["predicted_difficulty"] >= low) & (df["predicted_difficulty"] <= high)]
+            
+            if not filtered.empty:
+                with st.expander(label):
+                    for _, row in filtered.iterrows():
+                        st.write(f"{row['file'][:-4]} — Difficulty: {row['predicted_difficulty']:.2f}")
+            else:
+                with st.expander(label):
+                    st.write("No songs in this range.")
 
     def display_recommendations(self):
         """
@@ -163,6 +191,7 @@ class streamlit:
         self.display_uploader()
         self.display_selector()
         self.display_button()
+        self.display_difficulty_ranges()
 
         if self.submit:
             if self.midi != None:
