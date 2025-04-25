@@ -5,7 +5,7 @@ import convert_midi_to_csv as convert
 import pandas as pd
 from AveragingModels import AveragingModels
 from mido import MidiFile
-from sheetvision import main
+# from sheetvision import main
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
