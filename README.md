@@ -2,6 +2,8 @@
 
 This is a music difficulty prediction regression based model. We ensemble XGboost and Randomforest in averaged model.
 
+Try it yourself: https://scaleup.streamlit.app/
+
 We sourced our data from:
 - Midi to csv data: https://www.kaggle.com/datasets/vincentloos/classical-music-midi-as-csv
 - Difficulty data used: https://www.pianolibrary.org/
