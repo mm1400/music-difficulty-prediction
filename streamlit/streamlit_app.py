@@ -244,7 +244,7 @@ class streamlit:
         # self.display_sheet_image_uploader()
         self.display_selector()
         self.display_button()
-        self.display_difficulty_ranges()
+        
 
         if self.submit:
             # if self.sheet_image is not None:
@@ -266,6 +266,8 @@ class streamlit:
             else:
                 self.submit = False
                 st.write("Please select an option or upload a midi file before submitting.")
+
+            self.display_difficulty_ranges()
 
 
             
