@@ -1,16 +1,17 @@
 import pickle
-
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split, cross_val_score
-
 import random
 
-from AveragingModels import AveragingModels
-import csv_processing
 import convert_midi_to_csv as convert
-import streamlit as st
 import pandas as pd
+from AveragingModels import AveragingModels
 from mido import MidiFile
+from sheetvision import main
+from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
+import csv_processing
+import streamlit as st
+import os
 
 
 class streamlit:
@@ -111,7 +112,7 @@ class streamlit:
         df = averaged_models.scaler.transform(df)
 
         self.difficulty_predicted = averaged_models.predict(df)
-        st.markdown(f"**Predicted difficult level: {self.difficulty_predicted[0]}**")
+        st.markdown(f"**Predicted difficult level: {round(self.difficulty_predicted[0] * 2) / 2}**")
 
 
 
@@ -173,7 +174,57 @@ class streamlit:
             else:
                 with st.expander(label):
                     st.write("No songs in this range.")
+                    
+    def display_sheet_image_uploader(self):
+        """
+        Display uploader for sheet music image files
+        """
+        self.sheet_image = st.file_uploader("Or upload a sheet music image", type=["png", "jpg", "jpeg"], key="sheet_image")
+        
+    def process_sheet_image(self):
+        """
+        Convert sheet music image to MIDI and analyze difficulty
+        """
+        st.write("Processing uploaded sheet music image...")
 
+        # Save uploaded image temporarily
+        with open("temp_sheet_image.png", "wb") as f:
+            f.write(self.sheet_image.read())
+
+        # Convert sheet music image to MIDI
+        st.write("Converting sheet music image to MIDI...")
+        main("temp_sheet_image.png")
+
+        st.success("Sheet music converted to MIDI (output.mid)")
+
+        mid = MidiFile("output.mid")
+
+        # Convert MIDI to CSV format
+        csv = pd.DataFrame(convert.mid_to_csv(mid))
+        csv = csv.reset_index()
+        st.write(csv)
+
+        # Extract features
+        df = pd.DataFrame(csv_processing.get_features(csv), index=[0])
+        st.write("Features extracted:")
+        st.write(df)
+
+        features_kept = ['note_count', 'note_density', 'unique_note_count', 'notes_per_second',
+                        'pitch_range', 'tempo_change_count', 'note_to_note_transition',
+                        'note_to_chord_transition', 'chord_to_note_transition', 'chord_to_chord_transition']
+
+        df = df.loc[:, features_kept]
+
+        # Load model
+        with open('./models/averaged_models.pkl', 'rb') as file:
+            averaged_models = pickle.load(file)
+
+        # Scale and predict
+        df = averaged_models.scaler.transform(df)
+        self.difficulty_predicted = averaged_models.predict(df)
+
+        st.markdown(f"**Predicted difficulty level: {round(self.difficulty_predicted[0] * 2) / 2}**")
+    
     def display_recommendations(self):
         """
         Display the recommendations
@@ -190,12 +241,29 @@ class streamlit:
         """
         self.display_title()
         self.display_uploader()
+        self.display_sheet_image_uploader()
         self.display_selector()
         self.display_button()
         self.display_difficulty_ranges()
 
         if self.submit:
-            if self.midi != None:
+            if self.sheet_image is not None:
+                st.title("📁 Current Directory Contents")
+
+                cwd = os.getcwd()
+                st.write(f"**Current working directory:** `{cwd}`")
+
+                files = os.listdir(cwd)
+
+                st.write("### Contents:")
+                for f in files:
+                    st.write(f"- {f}")
+                self.process_sheet_image()
+                
+                self.make_recommendations()
+                self.display_recommendations()
+
+            if self.midi is not None:
                 self.process_midi_uploaded()
                 self.make_recommendations()
                 self.display_recommendations()
