@@ -10,6 +10,7 @@ import csv_processing
 import convert_midi_to_csv as convert
 import streamlit as st
 import pandas as pd
+from mido import MidiFile
 
 
 class streamlit:

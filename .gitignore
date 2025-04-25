@@ -1,2 +1,3 @@
 ALL
 .venv
+__pycache__
